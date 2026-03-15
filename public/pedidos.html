@@ -24,10 +24,8 @@ headers:{
 },
 
 body:JSON.stringify({
-
 cliente:cliente.value,
 produto:produto.value
-
 })
 
 })
@@ -35,6 +33,26 @@ produto:produto.value
 carregar()
 
 }
+
+
+async function excluir(id){
+
+await fetch("/excluir",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({id})
+
+})
+
+carregar()
+
+}
+
 
 async function carregar(){
 
@@ -46,7 +64,10 @@ lista.innerHTML=""
 dados.forEach(p=>{
 
 let li=document.createElement("li")
-li.innerText=p.cliente+" - "+p.produto
+
+li.innerHTML =
+p.cliente + " - " + p.produto +
+" <button onclick='excluir("+p.id+")'>X</button>"
 
 lista.appendChild(li)
 
