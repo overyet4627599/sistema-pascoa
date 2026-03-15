@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Pedidos</h2>
+
+<input id="cliente">
+<input id="produto">
+
+<button onclick="salvar()">Salvar</button>
+
+<ul id="lista"></ul>
+
+<script>
+
+async function salvar(){
+
+await fetch("/pedidos",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+cliente:cliente.value,
+produto:produto.value
+
+})
+
+})
+
+carregar()
+
+}
+
+async function carregar(){
+
+let r = await fetch("/pedidos")
+let dados = await r.json()
+
+lista.innerHTML=""
+
+dados.forEach(p=>{
+
+let li=document.createElement("li")
+li.innerText=p.cliente+" - "+p.produto
+
+lista.appendChild(li)
+
+})
+
+}
+
+carregar()
+
+</script>
+
+</body>
+</html>

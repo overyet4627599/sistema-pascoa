@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Login</h2>
+
+<input id="usuario" placeholder="usuario">
+<input id="senha" placeholder="senha" type="password">
+
+<button onclick="entrar()">Entrar</button>
+
+<script>
+
+async function entrar(){
+
+let usuario = document.getElementById("usuario").value
+let senha = document.getElementById("senha").value
+
+let r = await fetch("/login",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({usuario,senha})
+
+})
+
+let d = await r.json()
+
+if(d.ok){
+
+location = "dashboard.html"
+
+}else{
+
+alert("erro")
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
