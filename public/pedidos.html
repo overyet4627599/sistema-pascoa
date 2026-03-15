@@ -1,82 +1,159 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Sistema de Pedidos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 40px;
+    }
+    h2 { color: #333; }
+    .form-container { margin-bottom: 20px; }
+    input, select {
+      padding: 8px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 8px 12px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover { background: #45a049; }
+    ul { list-style: none; padding: 0; }
+    li {
+      background: #fff;
+      margin-bottom: 8px;
+      padding: 10px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #ddd;
+    }
+    .delete-btn {
+      background: #e74c3c;
+      padding: 5px 10px;
+      border-radius: 4px;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .delete-btn:hover { background: #c0392b; }
+  </style>
+</head>
 <body>
 
-<h2>Pedidos</h2>
+ <h2>Pedidos de Ovos</h2>
 
-<input id="cliente">
-<input id="produto">
+<div class="form-container">
+  <input id="cliente" placeholder="Nome do cliente">
 
-<button onclick="salvar()">Salvar</button>
+  <select id="sabor">
+    <option value="Brigadeiro">Brigadeiro</option>
+    <option value="Ninho">Ninho</option>
+    <option value="Ninho Com Nutella">Ninho Com Nutella</option>
+    <option value="Kids">Kids</option>
+    <option value="Ferrero Rocher">Ferrero Rocher</option>
+    <option value="Decorados Frutas">Decorados Frutas</option>
+    <option value="Decorados Frases">Decorados Frases</option>
+    <option value="Tradicional">Tradicional</option>
+  </select>
+
+  <select id="casca">
+    <option value="Meio Amargo">Meio Amargo</option>
+    <option value="Branco">Branco</option>
+  </select>
+
+  <select id="tamanho">
+    <option value="250g">250g</option> 
+    <option value="150g">150g</option>
+    <option value="100g">100g</option>
+  </select>
+
+  <select id="valor">
+    <option value="18,00">18,00</option>
+    <option value="22,00">22,00</option>
+    <option value="30,00">30,00</option>
+    <option value="35,00">35,00</option>
+    <option value="40,00">40,00</option>
+    <option value="45,00">45,00</option>
+    <option value="50,00">50,00</option>
+    <option value="55,00">55,00</option>
+    <option value="65,00">65,00</option>
+  </select>
+
+  <select id="rotas">
+    <option value="Paudarco">Paudarco</option>
+    <option value="Vila Nova">Vila Nova</option>
+    <option value="Oriente">Oriente</option>
+    <option value="Córrego Alegre">Córrego Alegre</option>
+    <option value="Vila Progresso">Vila Progresso</option>
+    <option value="Parati">Parati</option>
+    <option value="Arroz">Arroz</option>
+    <option value="Sucurujuba">Sucurujuba</option>
+    <option value="São José-Cajazeiras">São José-Cajazeiras</option>
+    <option value="Itarema">Itarema</option>
+  </select>
+
+  <input id="dataentrega" placeholder="Data De Entrega">
+
+  <button onclick="salvar()">Salvar Pedido</button>
+</div>
 
 <ul id="lista"></ul>
 
 <script>
+  async function salvar() {
+    await fetch("/pedidos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        cliente: document.getElementById("cliente").value,
+        sabor: document.getElementById("sabor").value,
+        casca: document.getElementById("casca").value,
+        tamanho: document.getElementById("tamanho").value,
+        valor: document.getElementById("valor").value,
+        rota: document.getElementById("rotas").value,
+        dataentrega: document.getElementById("dataentrega").value
+      })
+    });
+    carregar();
+  }
 
-async function salvar(){
+  async function excluir(id) {
+    await fetch("/excluir", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id })
+    });
+    carregar();
+  }
 
-await fetch("/pedidos",{
+  async function carregar() {
+    const r = await fetch("/pedidos");
+    const dados = await r.json();
 
-method:"POST",
+    const lista = document.getElementById("lista");
+    lista.innerHTML = "";
 
-headers:{
-"Content-Type":"application/json"
-},
+    dados.forEach(p => {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <span><strong>${p.cliente}</strong> - ${p.sabor} (${p.tamanho}, ${p.casca}) - R$${p.valor} - Entrega: ${p.dataentrega} - Rota: ${p.rota}</span>
+        <button class="delete-btn" onclick="excluir(${p.id})">Excluir</button>
+      `;
+      lista.appendChild(li);
+    });
+  }
 
-body:JSON.stringify({
-cliente:cliente.value,
-produto:produto.value
-})
-
-})
-
-carregar()
-
-}
-
-
-async function excluir(id){
-
-await fetch("/excluir",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({id})
-
-})
-
-carregar()
-
-}
-
-
-async function carregar(){
-
-let r = await fetch("/pedidos")
-let dados = await r.json()
-
-lista.innerHTML=""
-
-dados.forEach(p=>{
-
-let li=document.createElement("li")
-
-li.innerHTML =
-p.cliente + " - " + p.produto +
-" <button onclick='excluir("+p.id+")'>X</button>"
-
-lista.appendChild(li)
-
-})
-
-}
-
-carregar()
-
+  carregar();
 </script>
 
 </body>

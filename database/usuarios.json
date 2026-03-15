@@ -1,4 +1,5 @@
 [
-  { "usuario": "admin", "senha": "123" },
-  { "usuario": "vendas", "senha": "123" }
+  { "usuario": "kaiane", "senha": "suasenha", "tipo": "restrito" },
+  { "usuario": "tiago", "senha": "overcolt", "tipo": "restrito" },
+  { "usuario": "publico", "senha": null, "tipo": "livre" }
 ]
