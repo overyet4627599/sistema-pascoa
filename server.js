@@ -38,28 +38,58 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// PEDIDOS
+// LISTAR PEDIDOS
 app.get("/pedidos", async (req, res) => {
   const pedidos = await ler(pedidosFile);
   res.json(pedidos);
 });
 
+// CRIAR NOVO PEDIDO
 app.post("/pedidos", async (req, res) => {
- const { cliente, sabor, casca, tamanho, valor, rota, dataentrega } = req.body;
-if (!cliente || !sabor || !casca || !tamanho || !valor || !rota || !dataentrega) {
-  return res.status(400).send("Dados inválidos");
-}
+  const { cliente, rota, dataentrega, itens } = req.body;
 
-const lista = await ler(pedidosFile);
-const novo = { id: Date.now(), cliente, sabor, casca, tamanho, valor, rota, dataentrega };
+  if (!cliente || !rota || !dataentrega || !Array.isArray(itens) || itens.length === 0) {
+    return res.status(400).send("Dados inválidos");
+  }
 
-lista.push(novo);
-await salvar(pedidosFile, lista);
+  const lista = await ler(pedidosFile);
 
-res.json({ ok: true });
+  const novo = {
+    id: Date.now(),
+    cliente,
+    rota,
+    dataentrega,
+    itens
+  };
+
+  lista.push(novo);
+  await salvar(pedidosFile, lista);
+
+  res.json({ ok: true });
 });
 
-// EXCLUIR
+// EDITAR PEDIDO EXISTENTE
+app.post("/editar", async (req, res) => {
+  const { id, cliente, rota, dataentrega, itens } = req.body;
+
+  if (!id || !cliente || !rota || !dataentrega || !Array.isArray(itens) || itens.length === 0) {
+    return res.status(400).send("Dados inválidos");
+  }
+
+  let lista = await ler(pedidosFile);
+  const index = lista.findIndex(p => p.id === id);
+
+  if (index === -1) {
+    return res.status(404).send("Pedido não encontrado");
+  }
+
+  lista[index] = { id, cliente, rota, dataentrega, itens };
+  await salvar(pedidosFile, lista);
+
+  res.json({ ok: true });
+});
+
+// EXCLUIR PEDIDO
 app.post("/excluir", async (req, res) => {
   const { id } = req.body;
   let lista = await ler(pedidosFile);

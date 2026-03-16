@@ -4,57 +4,35 @@
   <meta charset="UTF-8">
   <title>Sistema de Pedidos</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      margin: 40px;
-    }
+    body { font-family: Arial, sans-serif; background: #f9f9f9; margin: 40px; }
     h2 { color: #333; }
     .form-container { margin-bottom: 20px; }
     input, select {
-      padding: 8px;
-      margin-right: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      padding: 8px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px;
     }
     button {
-      padding: 8px 12px;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+      padding: 8px 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;
     }
     button:hover { background: #45a049; }
     ul { list-style: none; padding: 0; }
     li {
-      background: #fff;
-      margin-bottom: 8px;
-      padding: 10px;
-      border-radius: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: 1px solid #ddd;
+      background: #fff; margin-bottom: 8px; padding: 10px; border-radius: 4px;
+      display: flex; justify-content: space-between; align-items: center; border: 1px solid #ddd;
     }
-    .delete-btn {
-      background: #e74c3c;
-      padding: 5px 10px;
-      border-radius: 4px;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
+    .delete-btn { background: #e74c3c; padding: 5px 10px; border-radius: 4px; color: white; border: none; cursor: pointer; }
     .delete-btn:hover { background: #c0392b; }
+    .edit-btn { background: #f39c12; padding: 5px 10px; border-radius: 4px; color: white; border: none; cursor: pointer; margin-left: 5px; }
+    .edit-btn:hover { background: #d35400; }
+    .delete-item-btn { background: #e67e22; padding: 3px 8px; border-radius: 4px; color: white; border: none; cursor: pointer; margin-left: 10px; }
+    .delete-item-btn:hover { background: #ca6f1e; }
   </style>
 </head>
 <body>
 
- <h2>Pedidos de Ovos</h2>
+<h2>Pedidos de Ovos</h2>
 
 <div class="form-container">
   <input id="cliente" placeholder="Nome do cliente">
-
   <select id="sabor">
     <option value="Brigadeiro">Brigadeiro</option>
     <option value="Ninho">Ninho</option>
@@ -65,18 +43,15 @@
     <option value="Decorados Frases">Decorados Frases</option>
     <option value="Tradicional">Tradicional</option>
   </select>
-
   <select id="casca">
     <option value="Meio Amargo">Meio Amargo</option>
     <option value="Branco">Branco</option>
   </select>
-
   <select id="tamanho">
-    <option value="250g">250g</option> 
+    <option value="250g">250g</option>
     <option value="150g">150g</option>
     <option value="100g">100g</option>
   </select>
-
   <select id="valor">
     <option value="18,00">18,00</option>
     <option value="22,00">22,00</option>
@@ -88,7 +63,6 @@
     <option value="55,00">55,00</option>
     <option value="65,00">65,00</option>
   </select>
-
   <select id="rotas">
     <option value="Paudarco">Paudarco</option>
     <option value="Vila Nova">Vila Nova</option>
@@ -101,29 +75,75 @@
     <option value="São José-Cajazeiras">São José-Cajazeiras</option>
     <option value="Itarema">Itarema</option>
   </select>
-
   <input id="dataentrega" placeholder="Data De Entrega">
 
-  <button onclick="salvar()">Salvar Pedido</button>
+  <button onclick="adicionarItem()">Adicionar Item</button>
+  <button onclick="salvar()">Finalizar Pedido</button>
 </div>
 
+<h3>Itens adicionados:</h3>
+<ul id="itens"></ul>
+
+<h3>Lista de pedidos:</h3>
 <ul id="lista"></ul>
 
 <script>
-  async function salvar() {
-    await fetch("/pedidos", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        cliente: document.getElementById("cliente").value,
-        sabor: document.getElementById("sabor").value,
-        casca: document.getElementById("casca").value,
-        tamanho: document.getElementById("tamanho").value,
-        valor: document.getElementById("valor").value,
-        rota: document.getElementById("rotas").value,
-        dataentrega: document.getElementById("dataentrega").value
-      })
+  let itens = [];
+  let editandoId = null;
+
+  function renderItens() {
+    const listaItens = document.getElementById("itens");
+    listaItens.innerHTML = "";
+    itens.forEach((item, index) => {
+      const li = document.createElement("li");
+      li.innerHTML = `${item.sabor} (${item.tamanho}, ${item.casca}) - R$${item.valor}
+        <button class="delete-item-btn" onclick="removerItem(${index})">Excluir</button>`;
+      listaItens.appendChild(li);
     });
+  }
+
+  function adicionarItem() {
+    const item = {
+      sabor: document.getElementById("sabor").value,
+      casca: document.getElementById("casca").value,
+      tamanho: document.getElementById("tamanho").value,
+      valor: document.getElementById("valor").value
+    };
+    itens.push(item);
+    renderItens();
+  }
+
+  function removerItem(index) {
+    itens.splice(index, 1);
+    renderItens();
+  }
+
+  async function salvar() {
+    const pedido = {
+      cliente: document.getElementById("cliente").value,
+      rota: document.getElementById("rotas").value,
+      dataentrega: document.getElementById("dataentrega").value,
+      itens: itens
+    };
+
+    if (editandoId) {
+      pedido.id = editandoId;
+      await fetch("/editar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pedido)
+      });
+      editandoId = null;
+    } else {
+      await fetch("/pedidos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pedido)
+      });
+    }
+
+    itens = [];
+    renderItens();
     carregar();
   }
 
@@ -136,18 +156,32 @@
     carregar();
   }
 
+  function editar(p) {
+    document.getElementById("cliente").value = p.cliente;
+    document.getElementById("rotas").value = p.rota;
+    document.getElementById("dataentrega").value = p.dataentrega;
+    itens = p.itens;
+    editandoId = p.id;
+    renderItens();
+  }
+
   async function carregar() {
     const r = await fetch("/pedidos");
     const dados = await r.json();
-
     const lista = document.getElementById("lista");
     lista.innerHTML = "";
 
     dados.forEach(p => {
       const li = document.createElement("li");
+      const itensHTML = p.itens.map(i =>
+        `${i.sabor} (${i.tamanho}, ${i.casca}) - R$${i.valor}`
+      ).join("<br>");
       li.innerHTML = `
-        <span><strong>${p.cliente}</strong> - ${p.sabor} (${p.tamanho}, ${p.casca}) - R$${p.valor} - Entrega: ${p.dataentrega} - Rota: ${p.rota}</span>
-        <button class="delete-btn" onclick="excluir(${p.id})">Excluir</button>
+        <span><strong>${p.cliente}</strong> - Entrega: ${p.dataentrega} - Rota: ${p.rota}<br>${itensHTML}</span>
+        <div>
+          <button class="edit-btn" onclick='editar(${JSON.stringify(p)})'>Editar</button>
+          <button class="delete-btn" onclick="excluir(${p.id})">Excluir</button>
+        </div>
       `;
       lista.appendChild(li);
     });
