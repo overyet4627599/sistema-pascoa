@@ -43,6 +43,17 @@
     <option value="Decorados Frases">Decorados Frases</option>
     <option value="Tradicional">Tradicional</option>
   </select>
+
+  <!-- Campo extra para múltiplos sabores -->
+  <select id="saboresExtras" multiple style="display:none;">
+    <option value="Brigadeiro">Brigadeiro</option>
+    <option value="Ninho">Ninho</option>
+    <option value="Ninho Com Nutella">Ninho Com Nutella</option>
+    <option value="Kids">Kids</option>
+    <option value="Ferrero Rocher">Ferrero Rocher</option>
+    <option value="Tradicional">Tradicional</option>
+  </select>
+
   <select id="casca">
     <option value="Meio Amargo">Meio Amargo</option>
     <option value="Branco">Branco</option>
@@ -91,6 +102,16 @@
   let itens = [];
   let editandoId = null;
 
+  // Mostrar/esconder campo de sabores extras
+  document.getElementById("sabor").addEventListener("change", function() {
+    const extras = document.getElementById("saboresExtras");
+    if (this.value === "Decorados Frutas" || this.value === "Decorados Frases") {
+      extras.style.display = "inline-block";
+    } else {
+      extras.style.display = "none";
+    }
+  });
+
   function renderItens() {
     const listaItens = document.getElementById("itens");
     listaItens.innerHTML = "";
@@ -103,8 +124,17 @@
   }
 
   function adicionarItem() {
+    const saborPrincipal = document.getElementById("sabor").value;
+    let saboresSelecionados = [saborPrincipal];
+
+    if (saborPrincipal === "Decorados Frutas" || saborPrincipal === "Decorados Frases") {
+      const extras = Array.from(document.getElementById("saboresExtras").selectedOptions)
+                          .map(opt => opt.value);
+      saboresSelecionados = saboresSelecionados.concat(extras);
+    }
+
     const item = {
-      sabor: document.getElementById("sabor").value,
+      sabor: saboresSelecionados.join(", "),
       casca: document.getElementById("casca").value,
       tamanho: document.getElementById("tamanho").value,
       valor: document.getElementById("valor").value
@@ -173,7 +203,7 @@
 
     dados.forEach(p => {
       const li = document.createElement("li");
-      const itensHTML = p.itens.map(i =>
+            const itensHTML = p.itens.map(i =>
         `${i.sabor} (${i.tamanho}, ${i.casca}) - R$${i.valor}`
       ).join("<br>");
       li.innerHTML = `
@@ -187,6 +217,7 @@
     });
   }
 
+  // Carregar pedidos ao abrir a página
   carregar();
 </script>
 

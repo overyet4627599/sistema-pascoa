@@ -59,7 +59,7 @@ app.post("/pedidos", async (req, res) => {
     cliente,
     rota,
     dataentrega,
-    itens
+    itens // já suporta múltiplos sabores porque o frontend envia como string concatenada
   };
 
   lista.push(novo);
