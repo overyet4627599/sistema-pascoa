@@ -2,49 +2,241 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Sistema</title>
+  <title>Novo Pedido - Páscoa</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: url("https://img.criativodahora.com.br/2024/03/criativo-65e3d62b92324img-2024-03-0265e3d62b92328.jpg") repeat;
+      background-size: cover;
       margin: 0;
+      padding: 0;
     }
-    .container {
+    header {
+      background: linear-gradient(135deg, #ff9a9e, #fecfef);
+      color: #6b4226;
+      padding: 20px;
       text-align: center;
-      background: #fff;
-      padding: 40px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
-    h1 {
-      color: #333;
-      margin-bottom: 20px;
+    nav {
+      background: #ffe6f0;
+      padding: 10px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
-    a {
-      display: inline-block;
-      padding: 12px 24px;
-      background: #4CAF50;
-      color: white;
+    nav a {
+      margin: 0 15px;
+      color: #6b4226;
+      font-weight: bold;
       text-decoration: none;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    .form-container {
+      background: rgba(255, 255, 255, 0.9);
+      margin: 30px auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 800px;
+    }
+    input, select {
+      padding: 8px;
+      margin: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      padding: 10px 14px;
+      background: linear-gradient(135deg, #ff9a9e, #fecfef);
+      color: #6b4226;
+      border: none;
       border-radius: 6px;
       font-weight: bold;
-      transition: background 0.3s;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
-    a:hover {
-      background: #45a049;
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: rgba(255, 255, 255, 0.9);
+      margin-bottom: 8px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px dashed #ff9a9e;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .delete-item-btn { background: #e67e22; color: white; border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; margin-left: 10px; }
+    .footer {
+      text-align: center;
+      padding: 15px;
+      color: #555;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>✅ Sistema funcionando</h1>
-    <a href="login.html">Entrar</a>
-  </div>
+<header>🐰 Novo Pedido - Páscoa 🌸</header>
+
+<!-- Menu de navegação -->
+<nav>
+  <a href="dashboard.html">📋 Dashboard</a>
+  <a href="index.html">➕ Novo Pedido</a>
+  <a href="login.html">🔑 Sair</a>
+</nav>
+
+<div class="form-container">
+  <input id="cliente" placeholder="Nome do cliente">
+  <select id="sabor">
+    <option value="Brigadeiro">Brigadeiro</option>
+    <option value="Ninho">Ninho</option>
+    <option value="Ninho Com Nutella">Ninho Com Nutella</option>
+    <option value="Kids">Kids</option>
+    <option value="Ferrero Rocher">Ferrero Rocher</option>
+    <option value="Decorados Frutas">Decorados Frutas</option>
+    <option value="Decorados Frases">Decorados Frases</option>
+    <option value="Tradicional">Tradicional</option>
+  </select>
+
+  <!-- Campo extra para múltiplos sabores -->
+  <select id="saboresExtras" multiple style="display:none;">
+    <option value="Brigadeiro">Brigadeiro</option>
+    <option value="Ninho">Ninho</option>
+    <option value="Ninho Com Nutella">Ninho Com Nutella</option>
+    <option value="Kids">Kids</option>
+    <option value="Ferrero Rocher">Ferrero Rocher</option>
+    <option value="Tradicional">Tradicional</option>
+  </select>
+
+  <select id="casca">
+    <option value="Meio Amargo">Meio Amargo</option>
+    <option value="Branco">Branco</option>
+  </select>
+  <select id="tamanho">
+    <option value="250g">250g</option>
+    <option value="150g">150g</option>
+    <option value="100g">100g</option>
+  </select>
+  <select id="valor">
+    <option value="18.00">18,00</option>
+    <option value="22.00">22,00</option>
+    <option value="30.00">30,00</option>
+    <option value="35.00">35,00</option>
+    <option value="40.00">40,00</option>
+    <option value="45.00">45,00</option>
+    <option value="50.00">50,00</option>
+    <option value="55.00">55,00</option>
+    <option value="65.00">65,00</option>
+  </select>
+  <select id="rotas">
+    <option value="Paudarco">Paudarco</option>
+    <option value="Vila Nova">Vila Nova</option>
+    <option value="Oriente">Oriente</option>
+    <option value="Córrego Alegre">Córrego Alegre</option>
+    <option value="Vila Progresso">Vila Progresso</option>
+    <option value="Parati">Parati</option>
+    <option value="Arroz">Arroz</option>
+    <option value="Sucurujuba">Sucurujuba</option>
+    <option value="São José-Cajazeiras">São José-Cajazeiras</option>
+    <option value="Itarema">Itarema</option>
+  </select>
+  <input id="dataentrega" type="date" placeholder="Data De Entrega">
+
+  <button onclick="adicionarItem()">Adicionar Item</button>
+  <button onclick="salvar()">Finalizar Pedido</button>
+</div>
+
+<h3 style="text-align:center; color:#6b4226;">Itens adicionados:</h3>
+<ul id="itens"></ul>
+
+<div class="footer">🌸 Feliz Páscoa! 🌸</div>
+
+<script>
+  let itens = [];
+
+  document.getElementById("sabor").addEventListener("change", function() {
+    const extras = document.getElementById("saboresExtras");
+    if (this.value === "Decorados Frutas" || this.value === "Decorados Frases") {
+      extras.style.display = "inline-block";
+    } else {
+      extras.style.display = "none";
+    }
+  });
+
+  function renderItens() {
+    const listaItens = document.getElementById("itens");
+    listaItens.innerHTML = "";
+    itens.forEach((item, index) => {
+      const li = document.createElement("li");
+      li.innerHTML = `${item.sabor} (${item.tamanho}, ${item.casca}) - R$${item.valor}
+        <button class="delete-item-btn" onclick="removerItem(${index})">Excluir</button>`;
+      listaItens.appendChild(li);
+    });
+  }
+
+  function adicionarItem() {
+    const saborPrincipal = document.getElementById("sabor").value;
+    let saboresSelecionados = [saborPrincipal];
+
+    if (saborPrincipal === "Decorados Frutas" || saborPrincipal === "Decorados Frases") {
+      const extras = Array.from(document.getElementById("saboresExtras").selectedOptions)
+                          .map(opt => opt.value);
+      saboresSelecionados = saboresSelecionados.concat(extras);
+    }
+
+    const item = {
+      sabor: saboresSelecionados.join(", "),
+      casca: document.getElementById("casca").value,
+      tamanho: document.getElementById("tamanho").value,
+      valor: document.getElementById("valor").value
+    };
+    itens.push(item);
+    renderItens();
+  }
+
+  function removerItem(index) {
+    itens.splice(index, 1);
+    renderItens();
+  }
+
+    async function salvar() {
+    const pedido = {
+      cliente: document.getElementById("cliente").value,
+      rota: document.getElementById("rotas").value,
+      dataentrega: document.getElementById("dataentrega").value,
+      itens: itens
+    };
+
+    if (!pedido.cliente || !pedido.rota || !pedido.dataentrega || itens.length === 0) {
+      alert("Preencha todos os campos e adicione pelo menos um item!");
+      return;
+    }
+
+    await fetch("/pedidos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(pedido)
+    });
+
+    // Limpa os itens e redireciona para o dashboard
+    itens = [];
+    renderItens();
+    window.location.href = "/dashboard";
+  }
+</script>
 
 </body>
 </html>

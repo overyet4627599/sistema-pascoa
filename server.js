@@ -1,11 +1,12 @@
 const express = require("express");
 const fs = require("fs").promises;
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.use(express.static("public"));
+app.use(express.static("public")); // serve os arquivos HTML/CSS/JS da pasta public
 
 const pedidosFile = "./database/pedidos.json";
 const usuariosFile = "./database/usuarios.json";
@@ -23,6 +24,19 @@ async function ler(file) {
 async function salvar(file, dados) {
   await fs.writeFile(file, JSON.stringify(dados, null, 2));
 }
+
+// Rotas principais
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "login.html"));
+});
+
+app.get("/dashboard", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "dashboard.html"));
+});
+
+app.get("/novo-pedido", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 // LOGIN
 app.post("/login", async (req, res) => {
@@ -59,7 +73,7 @@ app.post("/pedidos", async (req, res) => {
     cliente,
     rota,
     dataentrega,
-    itens // já suporta múltiplos sabores porque o frontend envia como string concatenada
+    itens
   };
 
   lista.push(novo);
@@ -68,39 +82,40 @@ app.post("/pedidos", async (req, res) => {
   res.json({ ok: true });
 });
 
-// EDITAR PEDIDO EXISTENTE
+// EDITAR UM PEDIDO (adicionar/remover itens, atualizar dados)
 app.post("/editar", async (req, res) => {
   const { id, cliente, rota, dataentrega, itens } = req.body;
-
-  if (!id || !cliente || !rota || !dataentrega || !Array.isArray(itens) || itens.length === 0) {
-    return res.status(400).send("Dados inválidos");
-  }
-
   let lista = await ler(pedidosFile);
-  const index = lista.findIndex(p => p.id === id);
 
+  const index = lista.findIndex(p => p.id === Number(id));
   if (index === -1) {
     return res.status(404).send("Pedido não encontrado");
   }
 
-  lista[index] = { id, cliente, rota, dataentrega, itens };
+  lista[index] = { id: Number(id), cliente, rota, dataentrega, itens };
   await salvar(pedidosFile, lista);
 
   res.json({ ok: true });
 });
 
-// EXCLUIR PEDIDO
+// EXCLUIR UM PEDIDO ESPECÍFICO
 app.post("/excluir", async (req, res) => {
   const { id } = req.body;
   let lista = await ler(pedidosFile);
 
-  lista = lista.filter(p => p.id !== id);
-  await salvar(pedidosFile, lista);
+  const antes = lista.length;
+  lista = lista.filter(p => p.id !== Number(id));
 
+  if (lista.length === antes) {
+    return res.status(404).send("Pedido não encontrado");
+  }
+
+  await salvar(pedidosFile, lista);
   res.json({ ok: true });
 });
 
+// Inicialização do servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log("Servidor rodando na porta", PORT);
+  console.log("🐰 Servidor rodando na porta", PORT);
 });

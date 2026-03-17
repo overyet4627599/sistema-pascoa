@@ -2,98 +2,113 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Login</title>
+  <title>Login - Páscoa</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: url("https://i.pinimg.com/originals/8d/8b/51/8d8b51043496f2665ce177ec349dd26f.jpg") repeat;
+      background-size: cover;
       margin: 0;
+      padding: 0;
+    }
+    header {
+      background: linear-gradient(135deg, #ff9a9e, #fecfef);
+      color: #6b4226;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    nav {
+      background: #ffe6f0;
+      padding: 10px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    nav a {
+      margin: 0 15px;
+      color: #6b4226;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    nav a:hover {
+      text-decoration: underline;
     }
     .login-container {
-      background: #fff;
-      padding: 40px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      width: 300px;
+      background: rgba(255, 255, 255, 0.9);
+      margin: 50px auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 400px;
       text-align: center;
     }
-    h2 {
-      margin-bottom: 20px;
-      color: #333;
-    }
     input {
-      width: 100%;
       padding: 10px;
-      margin: 8px 0;
+      margin: 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
+      width: 80%;
     }
     button {
-      width: 100%;
-      padding: 12px;
-      background: #4CAF50;
-      color: white;
+      padding: 10px 14px;
+      background: linear-gradient(135deg, #ff9a9e, #fecfef);
+      color: #6b4226;
       border: none;
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
     button:hover {
-      background: #45a049;
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    .error {
-      color: #e74c3c;
-      margin-top: 10px;
+    .footer {
+      text-align: center;
+      padding: 15px;
+      color: #555;
       font-size: 14px;
     }
   </style>
 </head>
 <body>
 
-  <div class="login-container">
-    <h2>🔐 Login</h2>
-    <input id="usuario" placeholder="Usuário">
-    <input id="senha" placeholder="Senha" type="password">
-    <button onclick="entrar()">Entrar</button>
-    <div id="mensagem" class="error"></div>
-  </div>
+<header>🐰 Login - Sistema de Pedidos Páscoa 🌸</header>
 
-  <script>
-    async function entrar() {
-      const usuario = document.getElementById("usuario").value.trim();
-      const senha = document.getElementById("senha").value.trim();
-      const mensagem = document.getElementById("mensagem");
+<div class="login-container">
+  <h3 style="color:#6b4226;">Acesse sua conta</h3>
+  <input id="usuario" placeholder="Usuário">
+  <input id="senha" type="password" placeholder="Senha">
+  <br>
+  <button onclick="login()">Entrar</button>
+  <p id="mensagem" style="color:red; font-weight:bold;"></p>
+</div>
 
-      // Validação simples antes de enviar
-      if (!usuario || !senha) {
-        mensagem.textContent = "Preencha todos os campos!";
-        return;
-      }
+<div class="footer">🌸 Feliz Páscoa! 🌸</div>
 
-      try {
-        const r = await fetch("/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ usuario, senha })
-        });
+<script>
+  async function login() {
+    const usuario = document.getElementById("usuario").value;
+    const senha = document.getElementById("senha").value;
 
-        const d = await r.json();
+    const r = await fetch("/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ usuario, senha })
+    });
 
-        if (d.ok) {
-          location.href = "dashboard.html";
-        } else {
-          mensagem.textContent = "Usuário ou senha inválidos.";
-        }
-      } catch (error) {
-        mensagem.textContent = "Erro de conexão com o servidor.";
-      }
+    const dados = await r.json();
+
+    if (dados.ok) {
+      window.location.href = "dashboard.html";
+    } else {
+      document.getElementById("mensagem").textContent = "Usuário ou senha inválidos!";
     }
-  </script>
+  }
+</script>
 
 </body>
 </html>
