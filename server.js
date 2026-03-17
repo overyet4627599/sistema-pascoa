@@ -1,29 +1,35 @@
 const express = require("express");
-const fs = require("fs").promises;
 const cors = require("cors");
 const path = require("path");
+const { Sequelize, DataTypes } = require("sequelize");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(express.static("public")); // serve os arquivos HTML/CSS/JS da pasta public
 
-const pedidosFile = "./database/pedidos.json";
-const usuariosFile = "./database/usuarios.json";
+// Conexão com o banco PostgreSQL (Render fornece DATABASE_URL)
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: "postgres",
+  protocol: "postgres",
+  logging: false
+});
 
-// Funções utilitárias
-async function ler(file) {
-  try {
-    const data = await fs.readFile(file, "utf-8");
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
-}
+// Modelos
+const Usuario = sequelize.define("Usuario", {
+  usuario: { type: DataTypes.STRING, allowNull: false, unique: true },
+  senha: { type: DataTypes.STRING, allowNull: false }
+});
 
-async function salvar(file, dados) {
-  await fs.writeFile(file, JSON.stringify(dados, null, 2));
-}
+const Pedido = sequelize.define("Pedido", {
+  cliente: { type: DataTypes.STRING, allowNull: false },
+  rota: { type: DataTypes.STRING, allowNull: false },
+  dataentrega: { type: DataTypes.STRING, allowNull: false },
+  itens: { type: DataTypes.JSONB, allowNull: false } // guarda array de itens
+});
+
+// Sincroniza modelos com o banco
+sequelize.sync();
 
 // Rotas principais
 app.get("/", (req, res) => {
@@ -41,9 +47,7 @@ app.get("/novo-pedido", (req, res) => {
 // LOGIN
 app.post("/login", async (req, res) => {
   const { usuario, senha } = req.body;
-  const usuarios = await ler(usuariosFile);
-
-  const ok = usuarios.find(u => u.usuario === usuario && u.senha === senha);
+  const ok = await Usuario.findOne({ where: { usuario, senha } });
 
   if (ok) {
     res.json({ ok: true, usuario });
@@ -54,7 +58,7 @@ app.post("/login", async (req, res) => {
 
 // LISTAR PEDIDOS
 app.get("/pedidos", async (req, res) => {
-  const pedidos = await ler(pedidosFile);
+  const pedidos = await Pedido.findAll();
   res.json(pedidos);
 });
 
@@ -66,51 +70,29 @@ app.post("/pedidos", async (req, res) => {
     return res.status(400).send("Dados inválidos");
   }
 
-  const lista = await ler(pedidosFile);
-
-  const novo = {
-    id: Date.now(),
-    cliente,
-    rota,
-    dataentrega,
-    itens
-  };
-
-  lista.push(novo);
-  await salvar(pedidosFile, lista);
-
+  await Pedido.create({ cliente, rota, dataentrega, itens });
   res.json({ ok: true });
 });
 
-// EDITAR UM PEDIDO (adicionar/remover itens, atualizar dados)
+// EDITAR UM PEDIDO
 app.post("/editar", async (req, res) => {
   const { id, cliente, rota, dataentrega, itens } = req.body;
-  let lista = await ler(pedidosFile);
+  const pedido = await Pedido.findByPk(id);
 
-  const index = lista.findIndex(p => p.id === Number(id));
-  if (index === -1) {
-    return res.status(404).send("Pedido não encontrado");
-  }
+  if (!pedido) return res.status(404).send("Pedido não encontrado");
 
-  lista[index] = { id: Number(id), cliente, rota, dataentrega, itens };
-  await salvar(pedidosFile, lista);
-
+  await pedido.update({ cliente, rota, dataentrega, itens });
   res.json({ ok: true });
 });
 
-// EXCLUIR UM PEDIDO ESPECÍFICO
+// EXCLUIR UM PEDIDO
 app.post("/excluir", async (req, res) => {
   const { id } = req.body;
-  let lista = await ler(pedidosFile);
+  const pedido = await Pedido.findByPk(id);
 
-  const antes = lista.length;
-  lista = lista.filter(p => p.id !== Number(id));
+  if (!pedido) return res.status(404).send("Pedido não encontrado");
 
-  if (lista.length === antes) {
-    return res.status(404).send("Pedido não encontrado");
-  }
-
-  await salvar(pedidosFile, lista);
+  await pedido.destroy();
   res.json({ ok: true });
 });
 
