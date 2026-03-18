@@ -15,6 +15,15 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
   logging: false
 });
 
+// Teste de conexão
+sequelize.authenticate()
+  .then(() => {
+    console.log("✅ Conexão com o banco estabelecida com sucesso!");
+  })
+  .catch(err => {
+    console.error("❌ Erro ao conectar com o banco:", err);
+  });
+
 // Modelos
 const Usuario = sequelize.define("Usuario", {
   usuario: { type: DataTypes.STRING, allowNull: false, unique: true },
@@ -28,7 +37,7 @@ const Pedido = sequelize.define("Pedido", {
   itens: { type: DataTypes.JSONB, allowNull: false } // guarda array de itens
 });
 
-// Sincroniza modelos com o banco
+// Sincroniza modelos com o banco (cria tabelas se não existirem)
 sequelize.sync();
 
 // Rotas principais
