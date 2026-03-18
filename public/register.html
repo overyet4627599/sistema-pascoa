@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Login - Páscoa</title>
+  <title>Registrar - Páscoa</title>
   <style>
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
@@ -20,22 +20,7 @@
       font-weight: bold;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
-    nav {
-      background: #ffe6f0;
-      padding: 10px;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-    nav a {
-      margin: 0 15px;
-      color: #6b4226;
-      font-weight: bold;
-      text-decoration: none;
-    }
-    nav a:hover {
-      text-decoration: underline;
-    }
-    .login-container {
+    .register-container {
       background: rgba(255, 255, 255, 0.9);
       margin: 50px auto;
       padding: 30px;
@@ -78,24 +63,24 @@
 
 <header>🐰 Sistema de Pedidos Páscoa 🌸</header>
 
-<div class="login-container">
-  <h3 style="color:#6b4226;">Acesse sua conta</h3>
+<div class="register-container">
+  <h3 style="color:#6b4226;">Registrar Cliente</h3>
   <input id="email" type="email" placeholder="Email">
   <input id="senha" type="password" placeholder="Senha">
   <br>
-  <button onclick="login()">Entrar</button>
+  <button onclick="register()">Registrar</button>
   <p id="mensagem" style="color:red; font-weight:bold;"></p>
-  <p>Não tem conta? <a href="register.html">Registrar-se</a></p>
+  <p>Já tem conta? <a href="login.html">Login</a></p>
 </div>
 
 <div class="footer">🌸 Feliz Páscoa! 🌸</div>
 
 <script>
-  async function login() {
+  async function register() {
     const email = document.getElementById("email").value;
     const senha = document.getElementById("senha").value;
 
-    const r = await fetch("/login", {
+    const r = await fetch("/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, senha })
@@ -104,10 +89,10 @@
     const dados = await r.json();
 
     if (dados.ok) {
-      // Redireciona conforme o papel (role)
-      window.location.href = dados.redirect;
+      alert("✅ Registro realizado com sucesso! Faça login.");
+      window.location.href = "login.html";
     } else {
-      document.getElementById("mensagem").textContent = "Email ou senha inválidos!";
+      document.getElementById("mensagem").textContent = "Erro ao registrar: " + dados.msg;
     }
   }
 </script>

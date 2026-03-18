@@ -32,9 +32,7 @@
       font-weight: bold;
       text-decoration: none;
     }
-    nav a:hover {
-      text-decoration: underline;
-    }
+    nav a:hover { text-decoration: underline; }
     .form-container {
       background: rgba(255, 255, 255, 0.9);
       margin: 30px auto;
@@ -64,10 +62,7 @@
       transform: scale(1.05);
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
+    ul { list-style: none; padding: 0; }
     li {
       background: rgba(255, 255, 255, 0.9);
       margin-bottom: 8px;
@@ -78,12 +73,33 @@
       justify-content: space-between;
       align-items: center;
     }
-    .delete-item-btn { background: #e67e22; color: white; border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; margin-left: 10px; }
+    .delete-item-btn {
+      background: #e67e22;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 8px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
     .footer {
       text-align: center;
       padding: 15px;
       color: #555;
       font-size: 14px;
+    }
+    .erro {
+      color: red;
+      font-weight: bold;
+      display: block;
+      margin-top: -5px;
+      margin-bottom: 10px;
+    }
+    .sucesso {
+      color: green;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 15px;
     }
   </style>
 </head>
@@ -91,7 +107,6 @@
 
 <header>🐰 Novo Pedido - Páscoa 🌸</header>
 
-<!-- Menu de navegação -->
 <nav>
   <a href="dashboard.html">📋 Dashboard</a>
   <a href="index.html">➕ Novo Pedido</a>
@@ -111,7 +126,6 @@
     <option value="Tradicional">Tradicional</option>
   </select>
 
-  <!-- Campo extra para múltiplos sabores -->
   <select id="saboresExtras" multiple style="display:none;">
     <option value="Brigadeiro">Brigadeiro</option>
     <option value="Ninho">Ninho</option>
@@ -157,6 +171,7 @@
 
   <button onclick="adicionarItem()">Adicionar Item</button>
   <button onclick="salvar()">Finalizar Pedido</button>
+  <p id="mensagemSucesso" class="sucesso"></p>
 </div>
 
 <h3 style="text-align:center; color:#6b4226;">Itens adicionados:</h3>
@@ -169,11 +184,7 @@
 
   document.getElementById("sabor").addEventListener("change", function() {
     const extras = document.getElementById("saboresExtras");
-    if (this.value === "Decorados Frutas" || this.value === "Decorados Frases") {
-      extras.style.display = "inline-block";
-    } else {
-      extras.style.display = "none";
-    }
+    extras.style.display = (this.value === "Decorados Frutas" || this.value === "Decorados Frases") ? "inline-block" : "none";
   });
 
   function renderItens() {
@@ -192,8 +203,7 @@
     let saboresSelecionados = [saborPrincipal];
 
     if (saborPrincipal === "Decorados Frutas" || saborPrincipal === "Decorados Frases") {
-      const extras = Array.from(document.getElementById("saboresExtras").selectedOptions)
-                          .map(opt => opt.value);
+      const extras = Array.from(document.getElementById("saboresExtras").selectedOptions).map(opt => opt.value);
       saboresSelecionados = saboresSelecionados.concat(extras);
     }
 
@@ -212,18 +222,42 @@
     renderItens();
   }
 
-    async function salvar() {
+  async function salvar() {
+    // Limpa mensagens anteriores
+    document.querySelectorAll(".erro").forEach(el => el.remove());
+    document.getElementById("mensagemSucesso").textContent = "";
+
+    const cliente = document.getElementById("cliente");
+    const rota = document.getElementById("rotas");
+    const dataentrega = document.getElementById("dataentrega");
+
+    let valido = true;
+
+    if (!cliente.value) {
+      mostrarErro(cliente, "Informe o nome do cliente");
+      valido = false;
+    }
+    if (!rota.value) {
+      mostrarErro(rota, "Selecione a rota");
+      valido = false;
+    }
+    if (!dataentrega.value) {
+      mostrarErro(dataentrega, "Informe a data de entrega");
+      valido = false;
+    }
+    if (itens.length === 0) {
+      alert("Adicione pelo menos um item ao pedido!");
+      valido = false;
+    }
+
+    if (!valido) return;
+
     const pedido = {
-      cliente: document.getElementById("cliente").value,
-      rota: document.getElementById("rotas").value,
-      dataentrega: document.getElementById("dataentrega").value,
+      cliente: cliente.value,
+      rota: rota.value,
+      dataentrega: dataentrega.value,
       itens: itens
     };
-
-    if (!pedido.cliente || !pedido.rota || !pedido.dataentrega || itens.length === 0) {
-      alert("Preencha todos os campos e adicione pelo menos um item!");
-      return;
-    }
 
     await fetch("/pedidos", {
       method: "POST",
@@ -231,10 +265,22 @@
       body: JSON.stringify(pedido)
     });
 
-    // Limpa os itens e redireciona para o dashboard
+    // Limpa os campos e itens
+    cliente.value = "";
+    rota.value = "";
+    dataentrega.value = "";
     itens = [];
     renderItens();
-    window.location.href = "/dashboard";
+
+    // Mensagem de sucesso em verde
+    document.getElementById("mensagemSucesso").textContent = "✅ Pedido registrado com sucesso!";
+  }
+
+  function mostrarErro(campo, mensagem) {
+    const span = document.createElement("span");
+    span.className = "erro";
+    span.textContent = mensagem;
+    campo.insertAdjacentElement("afterend", span);
   }
 </script>
 

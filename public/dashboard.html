@@ -62,7 +62,7 @@
 </head>
 <body>
 
-<header>🐰 Pedidos - Páscoa 🌸</header>
+<header>🐰 Painel de Administração - Páscoa 🌸</header>
 
 <nav>
   <a href="dashboard.html">📋 Dashboard</a>
@@ -83,7 +83,7 @@
     lista.innerHTML = "";
 
     if (dados.length === 0) {
-      lista.innerHTML = "<p style='color:#6b4226; font-weight:bold;'>🌸 Que a vida seja doce! 🌸</p>";
+      lista.innerHTML = "<p style='color:#6b4226; font-weight:bold;'>🌸 Nenhum pedido registrado ainda 🌸</p>";
       return;
     }
 
@@ -101,47 +101,11 @@
         <p><strong>Entrega:</strong> <input type="date" value="${p.dataentrega}" onchange="atualizarCampo(${p.id}, 'dataentrega', this.value)"></p>
         <p><strong>Rota:</strong> <input value="${p.rota}" onchange="atualizarCampo(${p.id}, 'rota', this.value)"></p>
         <p id="itens-${p.id}">${itensHTML}</p>
-        <div>
-          <label>Sabores:</label>
-          <select id="sabor-${p.id}" onchange="mostrarExtra(${p.id}, this.value)">
-            <option value="Brigadeiro">Brigadeiro</option>
-            <option value="Ninho">Ninho</option>
-            <option value="Ninho Com Nutella">Ninho Com Nutella</option>
-            <option value="Kids">Kids</option>
-            <option value="Ferrero Rocher">Ferrero Rocher</option>
-            <option value="Tradicional">Tradicional</option>
-            <option value="Decorado Frase">Decorado Frase</option>
-            <option value="Decorado Frutas">Decorado Frutas</option>
-          </select>
-          <div id="extra-${p.id}"></div>
-          <select id="casca-${p.id}"><option value="Meio Amargo">Meio Amargo</option><option value="Branco">Branco</option></select>
-          <select id="tamanho-${p.id}"><option value="250g">250g</option><option value="150g">150g</option><option value="100g">100g</option></select>
-          <select id="valor-${p.id}"><option value="18.00">18,00</option><option value="22.00">22,00</option><option value="30.00">30,00</option><option value="35.00">35,00</option><option value="40.00">40,00</option><option value="45.00">45,00</option><option value="50.00">50,00</option><option value="55.00">55,00</option><option value="65.00">65,00</option></select>
-          <button class="btn-action" style="background:#2ecc71; color:white;" onclick="adicionarItem(${p.id})">➕ Adicionar Item</button>
-        </div>
         <button class="btn-action" style="background:#3498db; color:white;" onclick="salvarPedido(${p.id})">💾 Salvar Alterações</button>
         <button class="btn-action" style="background:#e74c3c; color:white;" onclick="excluirPedido(${p.id})">🗑️ Excluir Pedido</button>
       `;
       lista.appendChild(card);
     });
-  }
-
-  function mostrarExtra(id, valor) {
-    const extraDiv = document.getElementById(`extra-${id}`);
-    extraDiv.innerHTML = "";
-    if (valor === "Decorado Frase" || valor === "Decorado Frutas") {
-      extraDiv.innerHTML = `
-        <label>Sabor adicional:</label>
-        <select id="extraSabor-${id}">
-          <option value="Brigadeiro">Brigadeiro</option>
-          <option value="Ninho">Ninho</option>
-          <option value="Ninho Com Nutella">Ninho Com Nutella</option>
-          <option value="Kids">Kids</option>
-          <option value="Ferrero Rocher">Ferrero Rocher</option>
-          <option value="Tradicional">Tradicional</option>
-        </select>
-      `;
-    }
   }
 
   async function atualizarCampo(id, campo, valor) {
@@ -155,39 +119,6 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(pedido)
     });
-  }
-
-  async function adicionarItem(id) {
-    const sabor = document.getElementById(`sabor-${id}`).value;
-    const extraSaborEl = document.getElementById(`extraSabor-${id}`);
-    const extraSabor = extraSaborEl ? extraSaborEl.value : null;
-
-    const casca = document.getElementById(`casca-${id}`).value;
-    const tamanho = document.getElementById(`tamanho-${id}`).value;
-    const valor = document.getElementById(`valor-${id}`).value;
-
-    const r = await fetch("/pedidos");
-    const pedidos = await r.json();
-    const pedido = pedidos.find(p => p.id === id);
-    if (!pedido) return;
-
-    // Verifica se existe sabor extra
-    const sabores = [];
-    sabores.push(sabor);
-    if (extraSabor) {
-      sabores.push(extraSabor);
-    }
-
-    // Adiciona item ao pedido
-    pedido.itens.push({ sabores, casca, tamanho, valor });
-
-    await fetch("/editar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(pedido)
-    });
-
-    carregar();
   }
 
   async function excluirItem(pedidoId, itemIndex) {
