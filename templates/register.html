@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrar - Páscoa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: url("https://i.pinimg.com/originals/8d/8b/51/8d8b51043496f2665ce177ec349dd26f.jpg") repeat;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: linear-gradient(135deg, #ff9a9e, #fecfef);
+      color: #6b4226;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+    }
+    .register-container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      animation: fadeIn 1s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    input {
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+    }
+    button {
+      padding: 10px;
+      background: linear-gradient(135deg, #ff9a9e, #fecfef);
+      color: #6b4226;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 10px;
+      width: 100%;
+    }
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    #mensagem {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .footer {
+      text-align: center;
+      padding: 15px;
+      color: #555;
+      font-size: 14px;
+    }
+    @media (max-width: 600px) {
+      header { font-size: 18px; padding: 15px; }
+      .register-container { padding: 20px; }
+      input, button { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>🐰 Registrar - Sistema de Pedidos Páscoa 🌸</header>
+
+<div class="main">
+  <div class="register-container">
+    <h3 style="color:#6b4226;">Crie sua conta</h3>
+    <input id="usuario" placeholder="Usuário">
+    <input id="senha" type="password" placeholder="Senha">
+    <button onclick="registrar()">Registrar</button>
+    <p id="mensagem"></p>
+  </div>
+</div>
+
+<div class="footer">🌸 Feliz Páscoa! 🌸</div>
+
+<script>
+  async function registrar() {
+    const usuario = document.getElementById("usuario").value;
+    const senha = document.getElementById("senha").value;
+
+    const r = await fetch("/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ usuario, senha })
+    });
+
+    const dados = await r.json();
+    const msg = document.getElementById("mensagem");
+
+    if (dados.ok) {
+      msg.textContent = "Usuário registrado com sucesso!";
+      msg.style.color = "green";
+      // Redireciona direto para o dashboard
+      setTimeout(() => { window.location.href = "/"; }, 1500);
+    } else {
+      msg.textContent = dados.erro || "Erro ao registrar!";
+      msg.style.color = "red";
+    }
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Entregas - Páscoa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: url("https://i.pinimg.com/originals/8d/8b/51/8d8b51043496f2665ce177ec349dd26f.jpg") repeat; background-size: cover; margin: 0; padding: 0; }
+    header { background: linear-gradient(135deg, #ff9a9e, #fecfef); color: #6b4226; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    nav { background: #ffe6f0; padding: 10px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+    nav a { margin: 0 15px; color: #6b4226; font-weight: bold; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+    .container { padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .rota-block { background: rgba(255,255,255,0.9); border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .rota-block h2 { margin-top: 0; color: #6b4226; text-align: center; }
+    .pedido { border: 2px dashed #ff9a9e; border-radius: 8px; padding: 10px; margin: 10px 0; }
+    .pedido h3 { margin: 0; color: #6b4226; }
+    .pedido p { margin: 5px 0; font-size: 14px; }
+    button { padding: 10px 14px; background: linear-gradient(135deg, #ff9a9e, #fecfef); color: #6b4226; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin: 10px 0; }
+    button:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .footer { text-align: center; padding: 15px; color: #555; font-size: 14px; }
+    @media print {
+      nav, header, .footer, button { display: none; }
+      body { background: white; }
+      .container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .rota-block { box-shadow: none; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+
+<header>🚚 Entregas - Sistema de Pedidos Páscoa 🌸</header>
+
+<nav>
+  <a href="dashboard.html">📋 Dashboard</a>
+  <a href="index.html">➕ Novo Pedido</a>
+  <a href="entregas.html">🚚 Entregas</a>
+  <a href="logout.html">🔑 Sair</a>
+</nav>
+
+<div class="container" id="lista"></div>
+
+<div style="text-align:center;">
+  <button onclick="window.print()">🖨️ Salvar para Impressão</button>
+</div>
+
+<div class="footer">🌸 Feliz Páscoa! 🌸</div>
+
+<script>
+  // Cole aqui o link do seu Google Apps Script publicado
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyT8lScfRifnN7MhOzFhYWC918i3ceUvSxZ6z01mbF1U1r8_bXbhAVmhJyY2yasGxnDgA/exec";
+
+  async function carregarEntregas() {
+    try {
+      const r = await fetch(SCRIPT_URL);
+      let dados = await r.json();
+      const lista = document.getElementById("lista");
+      lista.innerHTML = "";
+
+      if (dados.length === 0) {
+        lista.innerHTML = "<p style='color:#6b4226; font-weight:bold;'>🌸 Nenhuma entrega encontrada! 🌸</p>";
+        return;
+      }
+
+      // Agrupar por rota
+      const rotas = {};
+      dados.forEach(p => {
+        if (!rotas[p.rota]) rotas[p.rota] = [];
+        rotas[p.rota].push(p);
+      });
+
+      // Ordenar rotas alfabeticamente
+      const rotasOrdenadas = Object.keys(rotas).sort();
+
+      rotasOrdenadas.forEach(rota => {
+        const bloco = document.createElement("div");
+        bloco.className = "rota-block";
+        bloco.innerHTML = `<h2>🚚 Rota: ${rota}</h2>`;
+
+        rotas[rota].forEach(p => {
+          let itens = [];
+          try { itens = JSON.parse(p.itens); } catch { itens = []; }
+
+          // Agrupar itens iguais e contar quantidade
+          const agrupados = {};
+          itens.forEach(i => {
+            const chave = `${i.sabor} (${i.tamanho}, ${i.casca}) - R$${i.valor}`;
+            if (!agrupados[chave]) agrupados[chave] = 0;
+            agrupados[chave]++;
+          });
+
+          const itensHTML = Object.entries(agrupados).map(([desc, qtd]) =>
+            `${desc} — ${qtd} ovo(s)`
+          ).join("<br>");
+
+          const pedidoDiv = document.createElement("div");
+          pedidoDiv.className = "pedido";
+          pedidoDiv.innerHTML = `
+            <h3>📦 Cliente: ${p.cliente}</h3>
+            <p><strong>Entrega:</strong> ${p.dataentrega}</p>
+            <p><strong>Itens:</strong><br>${itensHTML}</p>
+          `;
+          bloco.appendChild(pedidoDiv);
+        });
+
+        lista.appendChild(bloco);
+      });
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao carregar entregas!");
+    }
+  }
+
+  carregarEntregas();
+</script>
+
+</body>
+</html>
