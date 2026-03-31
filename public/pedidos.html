@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Novo/Editar Pedido - Páscoa</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: url("https://img.criativodahora.com.br/2024/03/criativo-65e3d62b92324img-2024-03-0265e3d62b92328.jpg") repeat; background-size: cover; margin:0; padding:0; }
+    header { background: linear-gradient(135deg, #ff9a9e, #fecfef); color:#6b4226; padding:20px; text-align:center; font-size:24px; font-weight:bold; box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+    nav { background:#ffe6f0; padding:10px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+    nav a { margin:0 15px; color:#6b4226; font-weight:bold; text-decoration:none; }
+    nav a:hover { text-decoration:underline; }
+    .form-container { background:rgba(255,255,255,0.9); margin:30px auto; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.2); width:90%; max-width:800px; }
+    input, select { padding:8px; margin:5px; border:1px solid #ccc; border-radius:6px; }
+    button { padding:10px 14px; background:linear-gradient(135deg, #ff9a9e, #fecfef); color:#6b4226; border:none; border-radius:6px; font-weight:bold; cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; }
+    button:hover { transform:scale(1.05); box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+    ul { list-style:none; padding:0; }
+    li { background:rgba(255,255,255,0.9); margin-bottom:8px; padding:10px; border-radius:8px; border:2px dashed #ff9a9e; display:flex; justify-content:space-between; align-items:center; }
+    .delete-item-btn { background:#e74c3c; color:white; border:none; border-radius:6px; padding:4px 8px; cursor:pointer; margin-left:10px; }
+    .footer { text-align:center; padding:15px; color:#555; font-size:14px; }
+  </style>
+</head>
+<body>
+
+<header>🐰 Pedido - Páscoa 🌸</header>
+
+<nav>
+  <a href="dashboard.html">📋 Dashboard</a>
+  <a href="index.html">➕ Novo Pedido</a>
+  <a href="login.html">🔑 Sair</a>
+</nav>
+
+<div class="form-container">
+  <input id="cliente" placeholder="Nome do cliente">
+
+  <label>Sabores:</label>
+  <select id="sabor" onchange="mostrarExtra(this.value)">
+    <option value="Brigadeiro">Brigadeiro</option>
+    <option value="Ninho">Ninho</option>
+    <option value="Ninho Com Nutella">Ninho Com Nutella</option>
+    <option value="Kids">Kids</option>
+    <option value="Ferrero Rocher">Ferrero Rocher</option>
+    <option value="Tradicional">Tradicional</option>
+    <option value="Decorado Frase">Decorado Frase</option>
+    <option value="Decorado Frutas">Decorado Frutas</option>
+  </select>
+  <div id="extra"></div>
+
+  <select id="casca"><option value="Meio Amargo">Meio Amargo</option><option value="Branco">Branco</option></select>
+  <select id="tamanho"><option value="250g">250g</option><option value="150g">150g</option><option value="100g">100g</option></select>
+  <select id="valor"><option value="18.00">18,00</option><option value="22.00">22,00</option><option value="30.00">30,00</option><option value="35.00">35,00</option><option value="40.00">40,00</option><option value="45.00">45,00</option><option value="50.00">50,00</option><option value="55.00">55,00</option><option value="65.00">65,00</option></select>
+  <select id="rotas"><option value="Paudarco">Paudarco</option><option value="Vila Nova">Vila Nova</option><option value="Oriente">Oriente</option><option value="Córrego Alegre">Córrego Alegre</option><option value="Vila Progresso">Vila Progresso</option><option value="Parati">Parati</option><option value="Arroz">Arroz</option><option value="Sucurujuba">Sucurujuba</option><option value="São José-Cajazeiras">São José-Cajazeiras</option><option value="Itarema">Itarema</option></select>
+  <input id="dataentrega" type="date" placeholder="Data De Entrega">
+
+  <button onclick="adicionarItem()">Adicionar Item</button>
+  <button onclick="salvar()">Salvar Pedido</button>
+</div>
+
+<h3 style="text-align:center; color:#6b4226;">Itens adicionados:</h3>
+<ul id="itens"></ul>
+
+<div class="footer">🌸 Feliz Páscoa! 🌸</div>
+
+<script>
+  let itens = [];
+  let pedidoId = null;
+
+  function mostrarExtra(valor) {
+    const extraDiv = document.getElementById("extra");
+    extraDiv.innerHTML = "";
+    if (valor === "Decorado Frase" || valor === "Decorado Frutas") {
+      extraDiv.innerHTML = `
+        <label>Sabor adicional:</label>
+        <select id="extraSabor">
+          <option value="Brigadeiro">Brigadeiro</option>
+          <option value="Ninho">Ninho</option>
+          <option value="Ninho Com Nutella">Ninho Com Nutella</option>
+          <option value="Kids">Kids</option>
+          <option value="Ferrero Rocher">Ferrero Rocher</option>
+          <option value="Tradicional">Tradicional</option>
+        </select>
+      `;
+    }
+  }
+
+  function renderItens() {
+    const listaItens = document.getElementById("itens");
+    listaItens.innerHTML = "";
+    itens.forEach((item, index) => {
+      const li = document.createElement("li");
+      li.innerHTML = `${item.sabores.join(" + ")} (${item.tamanho}, ${item.casca}) - R$${item.valor}
+        <button class="delete-item-btn" onclick="removerItem(${index})">Excluir item</button>`;
+      listaItens.appendChild(li);
+    });
+  }
+
+  function adicionarItem() {
+    const sabor = document.getElementById("sabor").value;
+    const extraSaborEl = document.getElementById("extraSabor");
+    const extraSabor = extraSaborEl ? extraSaborEl.value : null;
+
+    const sabores = extraSabor ? [sabor, extraSabor] : [sabor];
+
+    const item = {
+      sabores,
+      casca: document.getElementById("casca").value,
+      tamanho: document.getElementById("tamanho").value,
+      valor: document.getElementById("valor").value
+    };
+    itens.push(item);
+    renderItens();
+  }
+
+  function removerItem(index) {
+    itens.splice(index, 1);
+    renderItens();
+  }
+
+  async function salvar() {
+    const pedido = {
+      cliente: document.getElementById("cliente").value,
+      rota: document.getElementById("rotas").value,
+      dataentrega: document.getElementById("dataentrega").value,
+      itens: itens
+    };
+
+    if (!pedido.cliente || !pedido.rota || !pedido.dataentrega || itens.length === 0) {
+      alert("Preencha todos os campos e adicione pelo menos um item!");
+      return;
+    }
+
+    if (pedidoId) {
+      await fetch("/editar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: pedidoId, ...pedido })
+      });
+      alert(`Pedido do cliente ${pedido.cliente} foi atualizado com sucesso!`);
+    } else {
+      await fetch("/pedidos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pedido)
+      });
+      alert(`Pedido do cliente ${pedido.cliente} foi salvo com sucesso!`);
+    }
+
+    window.location.href = "/dashboard";
+  }
+
+  async function carregarPedido() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("id")) {
+      pedidoId = params.get("id");
+      const r = await fetch("/pedidos");
+      const dados = await r.json();
+      const pedido = dados.find(p => String(p.id) === String(pedidoId));
+
+      if (pedido) {
+        document.getElementById("cliente").value = pedido.cliente;
+        document.getElementById("rotas").value = pedido.rota;
+        document.getElementById("dataentrega").value = pedido.dataentrega;
+        itens = pedido.itens;
+        renderItens();
+      }
+    }
+  }
+
+  carregarPedido();
+</script>
+</body>
+</html>

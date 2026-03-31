@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrar - Páscoa</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: url("https://i.pinimg.com/originals/8d/8b/51/8d8b51043496f2665ce177ec349dd26f.jpg") repeat;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: linear-gradient(135deg, #ff9a9e, #fecfef);
+      color: #6b4226;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .register-container {
+      background: rgba(255, 255, 255, 0.9);
+      margin: 50px auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    input {
+      padding: 10px;
+      margin: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 80%;
+    }
+    button {
+      padding: 10px 14px;
+      background: linear-gradient(135deg, #ff9a9e, #fecfef);
+      color: #6b4226;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .footer {
+      text-align: center;
+      padding: 15px;
+      color: #555;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<header>🐰 Sistema de Pedidos Páscoa 🌸</header>
+
+<div class="register-container">
+  <h3 style="color:#6b4226;">Registrar Cliente</h3>
+  <input id="email" type="email" placeholder="Email">
+  <input id="senha" type="password" placeholder="Senha">
+  <br>
+  <button onclick="register()">Registrar</button>
+  <p id="mensagem" style="color:red; font-weight:bold;"></p>
+  <p>Já tem conta? <a href="login.html">Login</a></p>
+</div>
+
+<div class="footer">🌸 Feliz Páscoa! 🌸</div>
+
+<script>
+  async function register() {
+    const email = document.getElementById("email").value;
+    const senha = document.getElementById("senha").value;
+
+    const r = await fetch("/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, senha })
+    });
+
+    const dados = await r.json();
+
+    if (dados.ok) {
+      alert("✅ Registro realizado com sucesso! Faça login.");
+      window.location.href = "login.html";
+    } else {
+      document.getElementById("mensagem").textContent = "Erro ao registrar: " + dados.msg;
+    }
+  }
+</script>
+
+</body>
+</html>
